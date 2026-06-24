@@ -1,0 +1,86 @@
+@import "tailwindcss";
+@import "@xyflow/react/dist/style.css";
+@import "@fontsource/geist-sans/400.css";
+@import "@fontsource/geist-sans/500.css";
+@import "@fontsource/geist-sans/600.css";
+@import "@fontsource/jetbrains-mono/400.css";
+@import "@fontsource/jetbrains-mono/500.css";
+
+:root {
+  --bg-void: #0A0A0B;
+  --bg-panel: #131316;
+  --bg-raised: #1C1C20;
+  --line: #2A2A2F;
+  --text-primary: #ECEDEF;
+  --text-muted: #8B8D93;
+  --signal: #5EEAD4;
+}
+
+body {
+  margin: 0;
+  background: var(--bg-void);
+  color: var(--text-primary);
+  font-family: 'Geist Sans', sans-serif;
+}
+
+.font-mono {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.resize-handle {
+  width: 1px;
+  background: var(--line);
+  position: relative;
+  transition: background 0.15s;
+}
+
+.resize-handle:hover {
+  background: var(--signal);
+}
+
+.resize-handle::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -3px;
+  right: -3px;
+  bottom: 0;
+}
+
+.markdown-content {
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+.markdown-content h1,
+.markdown-content h2,
+.markdown-content h3 {
+  font-weight: 500;
+  margin-top: 1em;
+  margin-bottom: 0.4em;
+  color: var(--text-primary);
+}
+
+.markdown-content h3 {
+  font-size: 0.9rem;
+}
+
+.markdown-content p {
+  margin-bottom: 0.6em;
+}
+
+.markdown-content ul,
+.markdown-content ol {
+  margin-left: 1.2em;
+  margin-bottom: 0.6em;
+}
+
+.markdown-content li {
+  margin-bottom: 0.3em;
+}
+
+.markdown-content strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
