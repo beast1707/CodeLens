@@ -34,7 +34,7 @@ const Login = () => {
       <div className="w-full max-w-sm">
 
         <div className="mb-10 text-center">
-          <h1 className="text-2xl font-medium tracking-tight" style={{ color: 'var(--text-primary)' }}>
+          <h1 className="text-4xl font-medium tracking-tight" style={{ color: 'var(--text-primary)' }}>
             CodeLens <span style={{ color: 'var(--signal)' }}>AI</span>
           </h1>
           <p className="mt-2 text-sm" style={{ color: 'var(--text-muted)' }}>

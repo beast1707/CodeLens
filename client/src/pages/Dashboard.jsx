@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { LogOut, Plus, FileCode2 } from 'lucide-react'
+import { LogOut, Plus, FileCode2, Trash2 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import api from '../utils/axios'
 
@@ -16,18 +16,16 @@ const Dashboard = () => {
   const [githubUrl, setGithubUrl] = useState('')
   const [importing, setImporting] = useState(false)
   const [error, setError] = useState('')
-  const { user, logout } = useAuth()
+  const { logout } = useAuth()
   const navigate = useNavigate()
 
   useEffect(() => {
     fetchRepos()
   }, [])
 
-
   useEffect(() => {
     const hasProcessing = repos.some(r => r.status === 'pending' || r.status === 'processing')
     if (!hasProcessing) return
-
     const interval = setInterval(fetchRepos, 3000)
     return () => clearInterval(interval)
   }, [repos])
@@ -56,6 +54,18 @@ const Dashboard = () => {
     }
   }
 
+  const handleDelete = async (repoId) => {
+    const confirmed = window.confirm('Delete this repository? This will remove all its data and cannot be undone.')
+    if (!confirmed) return
+
+    try {
+      await api.delete(`/repositories/${repoId}`)
+      setRepos(prev => prev.filter(r => r._id !== repoId))
+    } catch (err) {
+      console.error('Failed to delete repository:', err)
+    }
+  }
+
   const handleLogout = async () => {
     await logout()
     navigate('/login')
@@ -65,9 +75,8 @@ const Dashboard = () => {
     <div className="min-h-screen px-6 py-8" style={{ background: 'var(--bg-void)' }}>
       <div className="max-w-4xl mx-auto">
 
-        {/* Header */}
         <div className="flex items-center justify-between mb-12">
-          <h1 className="text-3xl font-medium tracking-tight" style={{ color: 'var(--text-primary)' }}>
+          <h1 className="text-4xl font-medium tracking-tight" style={{ color: 'var(--text-primary)' }}>
             CodeLens <span style={{ color: 'var(--signal)' }}>AI</span>
           </h1>
           <button
@@ -80,7 +89,6 @@ const Dashboard = () => {
           </button>
         </div>
 
-        {/* Import bar */}
         <div className="mb-12">
           <p className="text-sm mb-3" style={{ color: 'var(--text-muted)' }}>
             Paste a GitHub repository URL to start exploring
@@ -93,11 +101,7 @@ const Dashboard = () => {
               placeholder="https://github.com/owner/repository"
               required
               className="flex-1 px-4 py-2.5 text-sm rounded outline-none font-mono"
-              style={{
-                background: 'var(--bg-panel)',
-                border: '1px solid var(--line)',
-                color: 'var(--text-primary)'
-              }}
+              style={{ background: 'var(--bg-panel)', border: '1px solid var(--line)', color: 'var(--text-primary)' }}
               onFocus={(e) => e.target.style.borderColor = 'var(--signal)'}
               onBlur={(e) => e.target.style.borderColor = 'var(--line)'}
             />
@@ -111,24 +115,23 @@ const Dashboard = () => {
               {importing ? 'Importing...' : 'Import'}
             </button>
           </form>
-          {error && (
-            <p className="mt-2 text-sm" style={{ color: '#F87171' }}>{error}</p>
-          )}
+          {error && <p className="mt-2 text-sm" style={{ color: '#F87171' }}>{error}</p>}
         </div>
 
-        {/* Repo grid */}
         {repos.length === 0 ? (
-          <div
-            className="text-center py-16 rounded"
-            style={{ border: '1px solid var(--line)', color: 'var(--text-muted)' }}
-          >
+          <div className="text-center py-16 rounded" style={{ border: '1px solid var(--line)', color: 'var(--text-muted)' }}>
             <FileCode2 size={28} className="mx-auto mb-3" style={{ color: 'var(--line)' }} />
             <p className="text-sm">No repositories imported yet</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {repos.map(repo => (
-              <RepoCard key={repo._id} repo={repo} onOpen={() => navigate(`/repository/${repo._id}`)} />
+              <RepoCard
+                key={repo._id}
+                repo={repo}
+                onOpen={() => navigate(`/repository/${repo._id}`)}
+                onDelete={() => handleDelete(repo._id)}
+              />
             ))}
           </div>
         )}
@@ -138,27 +141,17 @@ const Dashboard = () => {
   )
 }
 
-const RepoCard = ({ repo, onOpen }) => {
+const RepoCard = ({ repo, onOpen, onDelete }) => {
   const status = STATUS_STYLES[repo.status] || STATUS_STYLES.pending
   const isReady = repo.status === 'ready'
 
   return (
-    <div
-      className="p-4 rounded"
-      style={{ background: 'var(--bg-panel)', border: '1px solid var(--line)' }}
-    >
+    <div className="p-4 rounded" style={{ background: 'var(--bg-panel)', border: '1px solid var(--line)' }}>
       <div className="flex items-center justify-between mb-2">
-        <h3 className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
-          {repo.name}
-        </h3>
+        <h3 className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{repo.name}</h3>
         <div className="flex items-center gap-1.5">
-          <span
-            className="w-1.5 h-1.5 rounded-full"
-            style={{ background: status.color }}
-          />
-          <span className="text-xs" style={{ color: status.color }}>
-            {status.label}
-          </span>
+          <span className="w-1.5 h-1.5 rounded-full" style={{ background: status.color }} />
+          <span className="text-xs" style={{ color: status.color }}>{status.label}</span>
         </div>
       </div>
 
@@ -171,14 +164,24 @@ const RepoCard = ({ repo, onOpen }) => {
           {repo.totalFiles > 0 ? `${repo.totalFiles} files` : '—'}
           {repo.language && ` · ${repo.language}`}
         </span>
-        <button
-          onClick={onOpen}
-          disabled={!isReady}
-          className="text-xs px-3 py-1.5 rounded transition disabled:opacity-30"
-          style={{ border: '1px solid var(--line)', color: 'var(--text-primary)' }}
-        >
-          Open
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={onDelete}
+            className="p-1.5 rounded transition"
+            style={{ color: 'var(--text-muted)' }}
+            title="Delete repository"
+          >
+            <Trash2 size={13} />
+          </button>
+          <button
+            onClick={onOpen}
+            disabled={!isReady}
+            className="text-xs px-3 py-1.5 rounded transition disabled:opacity-30"
+            style={{ border: '1px solid var(--line)', color: 'var(--text-primary)' }}
+          >
+            Open
+          </button>
+        </div>
       </div>
     </div>
   )

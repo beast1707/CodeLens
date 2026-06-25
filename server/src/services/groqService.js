@@ -109,7 +109,6 @@ Required JSON shape:
 import FileMetadata from '../models/FileMetadata.js'
 
 export const generateAnswer = async (question, namespace, repositoryId) => {
- 
   const relevantFiles = await searchRepoEmbeddings(question, namespace, 6)
 
   if (relevantFiles.length === 0) {
@@ -119,18 +118,18 @@ export const generateAnswer = async (question, namespace, repositoryId) => {
     }
   }
 
-  
   const fileNames = relevantFiles.map(f => f.fileName)
   const fullFiles = await FileMetadata.find({
     repositoryId,
     filePath: { $in: fileNames }
   })
 
+  const TOTAL_BUDGET = 18000
+  const perFileLimit = Math.floor(TOTAL_BUDGET / fullFiles.length)
 
   const context = fullFiles.map(file => {
-    return `[File: ${file.filePath}]\n${file.content.slice(0, 2500)}`
+    return `[File: ${file.filePath}]\n${file.content.slice(0, perFileLimit)}`
   }).join('\n\n---\n\n')
-
 
   const completion = await groq.chat.completions.create({
     model: 'llama-3.3-70b-versatile',

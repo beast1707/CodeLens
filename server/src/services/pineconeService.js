@@ -87,11 +87,13 @@ export const searchRepoEmbeddings = async (question, namespace, topK = 6) => {
     includeMetadata: true
   })
 
-  return results.matches.map(match => ({
+  const matches = results.matches.map(match => ({
     fileName: match.metadata.fileName,
     summary: match.metadata.summary,
     score: match.score
   }))
+
+  return matches
 }
 
 
