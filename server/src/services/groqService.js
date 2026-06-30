@@ -19,8 +19,12 @@ export const generateFileSummary = async (fileName, content, functions, classes)
         {
           role: 'system',
           content: `You summarize code files in 2-3 plain English sentences.
-Mention what the file does, its main responsibilities, and key technologies/patterns used (e.g. authentication, database queries, API routes, UI rendering).
-Be specific and use natural language a developer would search with. Do not use code syntax in the summary.`
+
+ALWAYS start by explicitly naming the file's architectural role using one of these terms if applicable: controller, middleware, model, route, service, utility, configuration, component, hook, store.
+Then describe what it does and key technologies/patterns used (e.g. authentication, database queries, API routes, UI rendering).
+Be specific and use natural language a developer would search with. Do not use code syntax in the summary.
+
+Example: "This is a middleware file that verifies JWT tokens from request cookies and blocks unauthorized access to protected routes."`
         },
         {
           role: 'user',
@@ -68,12 +72,14 @@ export const generateFlow = async (query, namespace, repositoryId) => {
     model: 'llama-3.3-70b-versatile',
     messages: [
       {
-        role: 'system',
-        content: `You analyze code and output a step-by-step flow as STRICT JSON only.
+  role: 'system',
+  content: `You analyze code and output a step-by-step flow as STRICT JSON only.
 
 RULES:
 - Output ONLY valid JSON. No markdown, no explanation, no code fences, no extra text before or after.
-- Use ONLY information from the provided code context. Never invent files or steps that aren't shown.
+- Use ONLY information from the provided code context. Never invent steps or files that aren't shown.
+- Each step's "file" field MUST be the file that actually contains the specific logic described in that step — never attribute logic to a generic entry-point file (like server.js, index.js, or app.js) unless that file genuinely contains the exact logic, not just imports or route mounting.
+- If you are not confident which specific file performs a step's logic, omit that step rather than guessing.
 - Each step must reference a real file from the context.
 - Keep descriptions to one short sentence.
 
@@ -84,7 +90,7 @@ Required JSON shape:
     { "step": 1, "label": "short name e.g. function or component name", "description": "one sentence", "file": "exact file path from context" }
   ]
 }`
-      },
+},
       {
         role: 'user',
         content: `Code Context:\n\n${context}\n\nGenerate the step-by-step flow for: ${query}`
