@@ -197,6 +197,9 @@ codelens-ai/
 
 ---
 
+<img width="1896" height="906" alt="image" src="https://github.com/user-attachments/assets/a00227b4-69dc-437e-8ebe-32ec4ed04002" />
+
+
 ## Author
 
 Built by Ayush Durukkar — B.Tech CSE, MIT World Peace University, Pune.
