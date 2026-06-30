@@ -198,6 +198,10 @@ codelens-ai/
 ---
 
 <img width="1896" height="906" alt="image" src="https://github.com/user-attachments/assets/a00227b4-69dc-437e-8ebe-32ec4ed04002" />
+<img width="1917" height="907" alt="image" src="https://github.com/user-attachments/assets/0c352b5f-d7a5-4024-afda-80c58a8b75b5" />
+<img width="1919" height="908" alt="image" src="https://github.com/user-attachments/assets/6ff11b07-9987-442f-b536-b4ec82c454c2" />
+
+
 
 
 ## Author
